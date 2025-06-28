@@ -3,13 +3,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libcamera
-PKG_VERSION:=v0.2.0
+PKG_VERSION:=v0.5.1
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://git.linuxtv.org/libcamera.git
-PKG_SOURCE_DATE:=2024-01-09
-PKG_SOURCE_VERSION:=a3690f601bf9a90e1a936d9f361aebd789e3b073
+PKG_SOURCE_URL:=https://git.libcamera.org/libcamera/libcamera.git
+PKG_SOURCE_DATE:=2025-06-01
+PKG_SOURCE_VERSION:=290d3f82e3e3e313932a201308813c75131d16f1
 PKG_MAINTAINER:= Marcus Folkesson <marcus.folkesson@gmail.com>
 PKG_LICENSE:= \
 	LGPL-2.1+ (library), \
@@ -25,7 +25,7 @@ PKG_BUILD_DEPENDS:= \
 	python-jinja2/host \
 	python-ply/host \
 	python-yaml/host \
-	openssl
+	openssl 
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/meson.mk
@@ -90,7 +90,9 @@ MESON_ARGS += \
 	-Ddocumentation=disabled \
 	-Dtest=false \
 	-Dpycamera=disabled \
-	-Dwerror=false
+	-Dwerror=false \
+	-Dcam=disabled \
+	-Dqcam=disabled
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

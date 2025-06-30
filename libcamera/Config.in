@@ -49,5 +49,11 @@ config LIBCAMERA_PIPELINE_VIMC
 	help
 	  Pipeline for vimc devices.
 
+config LIBCAMERA_GSTREAMER_SUPPORT
+	bool "GStreamer support"
+	depends on PACKAGE_gstreamer1-libs && PACKAGE_gst1-plugins-base
+	default n
+	help
+	  Compile libcamera GStreamer plugin
 
 endmenu

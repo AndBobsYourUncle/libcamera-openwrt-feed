@@ -39,7 +39,7 @@ define Package/libcamera/default
 	SECTION:=libs
 	CATEGORY:=Multimedia
 	DEPENDS:=+libyaml +libgnutls +libstdcpp \
-		PACKAGE_gstreamer1:gstreamer1
+    	$(if $(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),+gst1-plugins-base +gstreamer1-libs)
 	TITLE:=libcamera
 	URL:=https://libcamera.org/
 endef
@@ -76,16 +76,10 @@ ifeq ($(CONFIG_LIBCAMERA_PIPELINE_VIMC),y)
 endif
 MESON_ARGS += -Dpipelines=$(subst $(space),$(comma),$(LIBCAMERA_PIPELINES))
 
-ifeq ($(CONFIG_LIBCAMERA_V4L2),y)
-	MESON_ARGS += -Dv4l2=true
-endif
-
-ifeq ($(CONFIG_PACKAGE_gstreamer),y)
-	LIBCAMERA_CONF_OPTS += -Dgstreamer=enabled
-endif
+MESON_ARGS += -Dv4l2=$(if $(CONFIG_LIBCAMERA_V4L2),enabled,disabled)
+MESON_ARGS += -Dgstreamer=$(if $(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),enabled,disabled)
 
 MESON_ARGS += \
-	-Dgstreamer=$(if $(CONFIG_PACKAGE_libevent2),en,dis)abled \
 	-Dandroid=disabled \
 	-Ddocumentation=disabled \
 	-Dtest=false \
@@ -112,8 +106,11 @@ define Package/libcamera/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/libexec/libcamera/* $(1)/usr/libexec/libcamera/
 	$(INSTALL_DIR) $(1)/usr/share/libcamera/ipa
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/libcamera/ipa/* $(1)/usr/share/libcamera/ipa/
-	$(INSTALL_DIR) $(1)/usr/share/libcamera/ipa
-	$(CP) $(PKG_INSTALL_DIR)/usr/share/libcamera/ipa/* $(1)/usr/share/libcamera/ipa/
+ifeq ($(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),y)
+	$(INSTALL_DIR) $(1)/usr/lib/gstreamer-1.0
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/gstreamer-1.0/libgstlibcamera.so* $(1)/usr/lib/gstreamer-1.0/
+endif
 endef
+
 
 $(eval $(call BuildPackage,libcamera))

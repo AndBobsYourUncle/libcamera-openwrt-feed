@@ -41,7 +41,7 @@ endef
 define Package/libcamera/default
 	SECTION:=libs
 	CATEGORY:=Multimedia
-	DEPENDS:=+libyaml +libgnutls +libstdcpp +libudev-zero +libevent2 +libevent2-pthreads $(if $(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),+gst1-plugins-base +gstreamer1-libs)
+	DEPENDS:=+libyaml +libgnutls +libstdcpp +libudev-zero +libevent2 +libevent2-pthreads +libdrm $(if $(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),+gst1-plugins-base +gstreamer1-libs)
 	TITLE:=libcamera
 	URL:=https://libcamera.org/
 endef

@@ -3,13 +3,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libcamera
-PKG_VERSION:=v0.5.1
+PKG_VERSION:=0.6.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://git.libcamera.org/libcamera/libcamera.git
-PKG_SOURCE_DATE:=2025-06-01
-PKG_SOURCE_VERSION:=290d3f82e3e3e313932a201308813c75131d16f1
+PKG_SOURCE_URL:=https://github.com/raspberrypi/libcamera.git
+PKG_SOURCE_DATE:=2025-12-02
+PKG_SOURCE_VERSION:=f0e40f1c50bd0afe65727d6e407d0dcb42666ada
 PKG_MAINTAINER:= Marcus Folkesson <marcus.folkesson@gmail.com>
 PKG_LICENSE:= \
 	LGPL-2.1+ (library), \
@@ -25,7 +25,10 @@ PKG_BUILD_DEPENDS:= \
 	python-jinja2/host \
 	python-ply/host \
 	python-yaml/host \
-	openssl 
+	openssl \
+	libevent2 \
+	LIBCAMERA_GSTREAMER_SUPPORT:gstreamer1-libs \
+	LIBCAMERA_GSTREAMER_SUPPORT:gst1-plugins-base
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/meson.mk
@@ -38,8 +41,7 @@ endef
 define Package/libcamera/default
 	SECTION:=libs
 	CATEGORY:=Multimedia
-	DEPENDS:=+libyaml +libgnutls +libstdcpp \
-    	$(if $(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),+gst1-plugins-base +gstreamer1-libs)
+	DEPENDS:=+libyaml +libgnutls +libstdcpp +libudev-zero +libevent2 +libevent2-pthreads $(if $(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),+gst1-plugins-base +gstreamer1-libs)
 	TITLE:=libcamera
 	URL:=https://libcamera.org/
 endef
@@ -85,8 +87,9 @@ MESON_ARGS += \
 	-Dtest=false \
 	-Dpycamera=disabled \
 	-Dwerror=false \
-	-Dcam=disabled \
-	-Dqcam=disabled
+	-Dcam=enabled \
+	-Dqcam=disabled \
+	-Dstrip=false
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
@@ -98,12 +101,16 @@ define Build/InstallDev
 endef
 
 define Package/libcamera/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/cam $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/lib*.so.* $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/share/libcamera
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/libcamera/* $(1)/usr/share/libcamera/
 	$(INSTALL_DIR) $(1)/usr/libexec/libcamera
 	$(CP) $(PKG_INSTALL_DIR)/usr/libexec/libcamera/* $(1)/usr/libexec/libcamera/
+	$(INSTALL_DIR) $(1)/usr/lib/libcamera/ipa
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libcamera/ipa/* $(1)/usr/lib/libcamera/ipa/
 	$(INSTALL_DIR) $(1)/usr/share/libcamera/ipa
 	$(CP) $(PKG_INSTALL_DIR)/usr/share/libcamera/ipa/* $(1)/usr/share/libcamera/ipa/
 ifeq ($(CONFIG_LIBCAMERA_GSTREAMER_SUPPORT),y)
